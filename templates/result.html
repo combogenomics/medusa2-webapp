@@ -1,0 +1,96 @@
+{% extends "template.html" %}
+{% block title %}Medusa results{% endblock %}
+{% block container %}
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-md-offset-3">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <strong>{{ category }}</strong> {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+            <h2>Results summary</h2>
+
+            {% if data %}
+              {% if 'version' in data %}
+              <p><span class="glyphicon glyphicon-tags"></span> Medusa version: {{ data['version'] }}</p>
+              {% endif %}
+            {% endif %}
+
+            <table class="table table-condensed table-hover">
+            <thead>
+              <tr>
+	            <th></th>
+		        <th># contigs</th>
+		        <th>Length (bp)</th>
+                <th>N50 (bp)</th>
+		      </tr>
+            </thead>
+	        <tbody>
+              {% if data %}
+                {% if data['draft']['N50'] < data['scaffold']['N50'] %}
+	            <tr class='danger'>
+                {% else %}
+                <tr class='success'>
+                {% endif %}
+                  <td>Input draft genome</td>
+                  <td>{{ data['draft']['contigs'] }}</td>
+                  <td>{{ data['draft']['length'] }}</td>
+                  <td>{{ data['draft']['N50'] }}</td>
+                </tr>   
+                {% if data['draft']['N50'] < data['scaffold']['N50'] %}
+	            <tr class='success'>
+                {% else %}
+                <tr class='danger'>
+                {% endif %}
+                  <td>Output scaffolded genome</td>
+                  <td>{{ data['scaffold']['contigs'] }}</td>
+                  <td>{{ data['scaffold']['length'] }}</td>
+                  <td>{{ data['scaffold']['N50'] }}</td>   
+	            </tr>
+                {% for target in data['targets'] %}
+	            </tr>
+                  <td>{{ target['name'].split('.inp')[0] }}</td>
+                  <td>{{ target['contigs'] }}</td>
+                  <td>{{ target['length'] }}</td>
+                  <td>{{ target['N50'] }}</td>   
+	            </tr>
+                {% endfor %}
+              {% endif %}
+	        </tbody>   
+            </table>
+
+            <a class="btn btn-success btn-lg btn-block" href="/medusa/scaffold/{{ req_id }}">
+              <span class="glyphicon glyphicon-save"></span>
+               Download the scaffold FASTA
+            </a>
+
+            <hr>
+
+            <a class="btn btn-warning btn-lg btn-block" href="/medusa/log/{{ req_id }}">
+              <span class="glyphicon glyphicon-eye-open"></span>
+               Have a look at the log
+            </a>
+
+            <a class="btn btn-danger btn-lg btn-block" href="/medusa/err/{{ req_id }}">
+              <span class="glyphicon glyphicon-eye-open"></span>
+               Have a look at the error log
+            </a>
+
+            <a class="btn btn-primary btn-lg btn-block" href="/medusa/">
+              <span class="glyphicon glyphicon-repeat"></span>
+               Launch a new job
+            </a>
+
+
+          </div> <!-- /col -->
+        </div> <!-- /row -->
+
+      </div> <!-- /container -->
+{% endblock %}

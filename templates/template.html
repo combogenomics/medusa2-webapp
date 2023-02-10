@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {% block head %}
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    {% endblock %}
+  </head>
+
+  <body>
+
+    <div class="header">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1 col-md-offset-3">
+            <a href="/medusa/"><img alt="Logo" src="{{ url_for('static', filename='img/logo.png') }}" class="img-responsive"></a>
+          </div><!-- col -->
+          <div class="col-md-5">
+            <h1 class="title">Medusa web server</h1>
+          </div><!-- col -->
+        </div><!-- row -->
+      </div><!-- container -->
+    </div><!-- header -->
+    
+    <div class="home">
+
+      <div class="row">
+        <noscript>
+          <div class="alert alert-danger">
+            <strong>Whoops! Javascript has not been enabled</strong>
+              <br/>                
+              You may experience some troubles in browsing this site...
+          </div>
+        </noscript>
+      </div>
+      {% block container %}
+      <div class="container">
+
+      </div> <!-- /container -->
+      {% endblock %}
+    </div> <!-- /home -->
+
+    <div class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3">
+            <h5>Brought to you by</h5>
+          <div class="muted">
+            <p>
+              <a href="http://www.unifi.it/dbefcb/" target="_blank">
+                <img alt="Combo" src="{{ url_for('static', filename='img/combo.png') }}" class="bg-container" width="100">
+              </a>
+            </p>
+            <p>
+              <a href="http://www.unifi.it/dbefcb/" target="_blank">Florence computational biology group</a>
+              <br>
+              <a href="http://www.unifi.it/dblage/" target="_blank">Department of biology</a>
+              <br>
+              <a href="http://www.unifi.it/">University of Florence</a>
+            </p>
+          </div>
+          </div><!-- col -->
+          <div class="col-md-3">
+            <h5>Cite us</h5>
+	    <div class="muted"><p>E Bosi, B Donati, M Galardini, S Brunetti, MF Sagot, P Lió, P Crescenzi, R Fani, and M Fondi. <a href="http://bioinformatics.oxfordjournals.org/content/early/2015/05/14/bioinformatics.btv171">MeDuSa: a multi-draft based scaffolder.</a> Bioinformatics (2015): btv171.</p></div>
+            <h5>Contacts</h5>
+          <div class="muted">
+            <p>
+              For feedback, bug reports and other information:
+              </p><ul>
+                <li>combo.unifi@gmail.com</li>
+		<li>medusa-tool@googlegroups.com</li>
+                <li>marco@ebi.ac.uk</li>
+                <li>emanuele.bosi@unifi.it</li>
+                <li>beatrice.donati@gmail.com</li>
+                <li>marco.fondi@unifi.it</li>
+                <li>sara.brunetti@unisi.it</li>
+          </div> 
+          </div><!-- col -->
+          <div class="col-md-3">
+          <h5>Stand-alone version and source code</h5>
+          <div class="muted">
+            <p>
+	    You can <a href="https://github.com/combogenomics/medusa/releases/">download medusa</a> and run it from your machine. To contribute to the project have a look at the <a href="https://github.com/combogenomics/medusa">official repository</a>.
+            </p>
+          </div>
+          </div><!-- col -->
+          <div class="col-md-3">
+          <h5>Open-source web-server</h5>
+          <div class="muted">
+            <p>
+	    This web-server runs using <a href="http://flask.pocoo.org/">Flask</a> and <a href="http://redis.io/">Redis</a>: you can contribute to the project through the <a href="https://github.com/combogenomics/medusa-webapp">official repository</a>.
+            </p>
+          </div>
+          </div><!-- col -->
+        </div><!-- row -->
+      </div><!-- container -->
+    </div><!-- header -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.cookiesdirective.js') }}"></script>    
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $.cookiesDirective({
+            privacyPolicyUri: "{{ url_for('static', filename='privacy-policy.html') }}",
+            position: 'bottom',
+            explicitConsent: false,
+        });
+    });
+    {% block scripts %}
+    {% endblock %}
+</script>
+
+<div id="statcounter_image" style="display:inline;">
+<a
+title="web statistics"
+href="http://statcounter.com/free-web-stats/"
+class="statcounter">
+<img
+src="http://c.statcounter.com/9925812/0/bd9c6ce8/0/"
+alt="web statistics" style="border:none;" /></a>
+</div>
+
+
+  </body>
+</html>
