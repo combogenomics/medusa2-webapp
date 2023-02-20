@@ -9,7 +9,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, escape, Response, send_from_directory
 from werkzeug.utils import secure_filename
 
-from utils import generate_hash
+from utils import check_first_line, check_sequence, generate_hash
 from utils import generate_time_hash
 
 from store import add_job
@@ -81,19 +81,56 @@ def run():
         os.mkdir(wdir)
         #MIOCOD
         if request.form['aligning_algorithm'] == 'option1':
-            aligning_algorithm = 'MU'
+            aligning_algorithm = ''
         else:
-            aligning_algorithm = 'MI'
-
-        print('defaultCheck1 ',request.form['graph_path'])
-        #print('defaultCheck2 ',request.form['weight'])
-        # Save input files
+            aligning_algorithm = '-a' #use Minimap align
+        
+        random = request.form.get('graph_path_rd')
+        weight = request.form.get('graph_path_wh')
+        
         draft = request.files['draft']
-        # if draft and allowed_file(draft.filename):
+        
+        #input files checks  --SCRIVI LA FUNZIONE IN UTILS.PY
+        
+        #print ("qui ",draft.filename)
+        #print ("qui2 ",draft.read())
+
+        
+        #print(request.files)
+        
+        # Save input files
+        #if draft and allowed_file(draft.filename):
         if draft:
             filename = secure_filename(draft.filename)
-            draft.save(os.path.join(wdir, filename))
+            draftFile= os.path.join(wdir, filename)
+            draft.save(draftFile)
             dname = filename
+            skipfirstcheck = 0
+            check_seq=0
+            with open(draftFile,"r") as file:
+                #line =file.readlines();
+                for line in file.readlines():
+                    if skipfirstcheck==0:
+                        firstline = check_first_line(line)
+                        if firstline ==0:
+                            flash(u'Something went wrong with your draft genome: not ">" charachter found ',
+                            'danger')  
+                            return redirect(url_for('index'))
+                        
+                        if firstline ==1:
+                            flash(u'Something went wrong with your draft genome: new line charachter found in wrong position ',
+                            'danger')  
+                            return redirect(url_for('index'))
+                        else:
+                            skipfirstcheck=1
+                    else:
+                        check_seq=check_sequence(line) 
+                        if check_seq == 1:
+                              skipfirstcheck = 0
+                        if check_seq == 2: 
+                              flash(u'Something went wrong with your draft genome: One or more sequences contain non-DNA characters. Please check your input files and try again. ',
+                            'danger')  
+                        return redirect(url_for('index'))  
         else:
             flash(u'Something went wrong with your draft genome',
                   'danger')
@@ -105,6 +142,8 @@ def run():
         try:
             for genome in request.files.getlist('genomes'):
                 filename = secure_filename(genome.filename)
+               # print(genome.read())
+                #QUI METTI CONTROLLO FILE GENOMA
                 genome.save(os.path.join(wdir, filename))
                 genomes.add(filename)
                
@@ -114,10 +153,14 @@ def run():
             return redirect(url_for('index'))
          #MIOCOD
         genomes.add(aligning_algorithm)
+        if random:
+            genomes.add(random)
+        if weight:
+            genomes.add(weight)
         # Check email, hash it
         email = request.form['email']
         # DESCOMMENTARE  if email:
-        # DESCOMMENTARE     hemail = generate_hash(email)
+        # DESCOMMENTARE    hemail = generate_hash(email)
         # DESCOMMENTARE else:
         # DESCOMMENTARE flash(u'Something went wrong with your email', 'danger')
         # DESCOMMENTARE return redirect(url_for('index'))

@@ -45,3 +45,23 @@ def N50(numlist):
     else:
         medianpos = len(newlist)/2
         return newlist[medianpos]
+
+def check_first_line(line):
+    if line[0] != ">":
+        return 0
+    if line[1] == "\n":
+        return 1
+    else:
+        return 2
+
+def check_sequence(line):  # allowed characters: ATCGN
+   good_sequency=0;
+   #controllare prima se stringa vuota
+   for c in line:
+        if c=="A" or c=="T" or c=="C" or c== "G" or c=="N" or c =="\n":
+            continue
+        else:
+            good_sequency=1
+            return 2
+   if good_sequency ==0:
+    return 0
