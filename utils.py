@@ -49,7 +49,7 @@ def N50(numlist):
 def check_first_line(line):
     if line[0] != ">":
         return 0
-    if line[1] == "\n":
+    if line[0] == ">" and line[1] == "\n":
         return 1
     else:
         return 2
@@ -60,8 +60,15 @@ def check_sequence(line):  # allowed characters: ATCGN
    for c in line:
         if c=="A" or c=="T" or c=="C" or c== "G" or c=="N" or c =="\n":
             continue
+        if c==">":
+            check_first=check_first_line(line)
+            if check_first ==0:
+                return 0
+            if check_first ==1:
+                return 1
+            else:
+                return 2
         else:
-            good_sequency=1
-            return 2
+            return 3
    if good_sequency ==0:
-    return 0
+    return 2

@@ -110,27 +110,38 @@ def run():
             with open(draftFile,"r") as file:
                 #line =file.readlines();
                 for line in file.readlines():
-                    if skipfirstcheck==0:
-                        firstline = check_first_line(line)
-                        if firstline ==0:
-                            flash(u'Something went wrong with your draft genome: not ">" charachter found ',
-                            'danger')  
-                            return redirect(url_for('index'))
-                        
-                        if firstline ==1:
-                            flash(u'Something went wrong with your draft genome: new line charachter found in wrong position ',
-                            'danger')  
-                            return redirect(url_for('index'))
+                    
+                        if skipfirstcheck==0:
+                            firstline = check_first_line(line)
+                            if firstline ==0:
+                                flash(u'Something went wrong with your draft genome: not ">" charachter found ',
+                                'danger')  
+                                return redirect(url_for('index'))
+                            
+                            if firstline ==1:
+                                flash(u'Something went wrong with your draft genome: new line charachter found in wrong position ',
+                                'danger')  
+                                return redirect(url_for('index'))
+                            else:
+                                skipfirstcheck=1
                         else:
-                            skipfirstcheck=1
-                    else:
-                        check_seq=check_sequence(line) 
-                        if check_seq == 1:
-                              skipfirstcheck = 0
-                        if check_seq == 2: 
-                              flash(u'Something went wrong with your draft genome: One or more sequences contain non-DNA characters. Please check your input files and try again. ',
-                            'danger')  
-                        return redirect(url_for('index'))  
+                            check_seq=check_sequence(line) 
+                            if check_seq == 0:
+                                flash(u'Something went wrong with your draft genome: not ">" charachter found ',
+                                'danger')  
+                                return redirect(url_for('index'))
+                            if check_seq == 1:
+                                flash(u'Something went wrong with your draft genome: new line charachter found in wrong position ',
+                                'danger')  
+                                return redirect(url_for('index'))
+                            if check_seq == 2:
+                                skipfirstcheck==1
+                            if check_seq == 3:
+                                flash(u'Something went wrong with your draft genome',
+                                'danger')
+                                return redirect(url_for('index'))
+        
+                        
         else:
             flash(u'Something went wrong with your draft genome',
                   'danger')
