@@ -56,11 +56,15 @@ def check_first_line(line):
 
 def check_sequence(line):  # allowed characters: ATCGN
    good_sequency=0;
+   #header =header
    #controllare prima se stringa vuota
+  # if header ==1 and line =="\n":
+   #    return 3
    for c in line:
         if c=="A" or c=="T" or c=="C" or c== "G" or c=="N" or c =="\n":
             continue
         if c==">":
+           # header = 1
             check_first=check_first_line(line)
             if check_first ==0:
                 return 0
@@ -69,6 +73,7 @@ def check_sequence(line):  # allowed characters: ATCGN
             else:
                 return 2
         else:
-            return 3
+           return 3
    if good_sequency ==0:
+   # header=0
     return 2
