@@ -54,26 +54,23 @@ def check_first_line(line):
     else:
         return 2
 
+def check_empty_sequence(line1, line2):
+    if line1[0] == ">" and line2[0] == ">":
+        return 1
+    if line1[0] == ">":
+        #getId(line1)
+        return 0
+    if line2[0] == ">":
+        #getId(line2)
+        return 0
+
 def check_sequence(line):  # allowed characters: ATCGN
    good_sequency=0;
-   #header =header
-   #controllare prima se stringa vuota
-  # if header ==1 and line =="\n":
-   #    return 3
-   for c in line:
-        if c=="A" or c=="T" or c=="C" or c== "G" or c=="N" or c =="\n":
-            continue
-        if c==">":
-           # header = 1
-            check_first=check_first_line(line)
-            if check_first ==0:
-                return 0
-            if check_first ==1:
-                return 1
+   if line[0] != ">":
+    for c in line:
+            if c.upper()=="A" or c.upper()=="T" or c.upper()=="C" or c.upper()== "G" or c.upper()=="N" or c =="\n":
+                continue
             else:
-                return 2
-        else:
-           return 3
+                return 1
    if good_sequency ==0:
-   # header=0
-    return 2
+    return 0

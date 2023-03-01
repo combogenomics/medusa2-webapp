@@ -9,7 +9,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, escape, Response, send_from_directory
 from werkzeug.utils import secure_filename
 
-from utils import check_first_line, check_sequence, generate_hash
+from utils import check_empty_sequence, check_first_line, check_sequence, generate_hash
 from utils import generate_time_hash
 
 from store import add_job
@@ -105,42 +105,25 @@ def run():
             draftFile= os.path.join(wdir, filename)
             draft.save(draftFile)
             dname = filename
-            skipfirstcheck = 0
-            check_seq=0
+            sequence=0;
+            found_new_line = 0
             with open(draftFile,"r") as file:
-                #line =file.readlines();
                 for line in file.readlines():
-                    
-                        if skipfirstcheck==0:
-                            firstline = check_first_line(line)
-                            if firstline ==0:
-                                flash(u'Something went wrong with your draft genome: not ">" charachter found ',
-                                'danger')  
-                                return redirect(url_for('index'))
-                            
-                            if firstline ==1:
-                                flash(u'Something went wrong with your draft genome: new line charachter found in wrong position ',
-                                'danger')  
-                                return redirect(url_for('index'))
-                            else:
-                                skipfirstcheck=1
-                        else:
-                            check_seq=check_sequence(line) 
-                            if check_seq == 0:
-                                flash(u'Something went wrong with your draft genome: not ">" charachter found ',
-                                'danger')  
-                                return redirect(url_for('index'))
-                            if check_seq == 1:
-                                flash(u'Something went wrong with your draft genome: new line charachter found in wrong position ',
-                                'danger')  
-                                return redirect(url_for('index'))
-                            if check_seq == 2:
-                                skipfirstcheck==1
-                            if check_seq == 3:
+                    if  found_new_line ==1:
+                        if line[0]== ">" or line[0]== "\n":
+                            flash(u'Something went wrong with your draft genome: empty sequence found',
+                                    'danger')
+                            return redirect(url_for('index'))
+                    if line[0]== ">":
+                        found_new_line =1
+                        #getid(line)
+                    else:
+                        found_new_line =0
+                        sequence = check_sequence(line)
+                        if sequence == 1:
                                 flash(u'Something went wrong with your draft genome',
-                                'danger')
+                                        'danger')
                                 return redirect(url_for('index'))
-        
                         
         else:
             flash(u'Something went wrong with your draft genome',
