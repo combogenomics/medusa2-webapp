@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import string
+
+
 def generate_time_hash(data):
     '''Return a sha256 hash
     
@@ -46,25 +49,7 @@ def N50(numlist):
         medianpos = len(newlist)/2
         return newlist[medianpos]
 
-def check_first_line(line):
-    if line[0] != ">":
-        return 0
-    if line[0] == ">" and line[1] == "\n":
-        return 1
-    else:
-        return 2
-
-def check_empty_sequence(line1, line2):
-    if line1[0] == ">" and line2[0] == ">":
-        return 1
-    if line1[0] == ">":
-        #getId(line1)
-        return 0
-    if line2[0] == ">":
-        #getId(line2)
-        return 0
-
-def check_sequence(line):  # allowed characters: ATCGN
+def check_sequence(line: string):  # allowed characters: ATCGN
    good_sequency=0;
    if line[0] != ">":
     for c in line:
@@ -74,3 +59,8 @@ def check_sequence(line):  # allowed characters: ATCGN
                 return 1
    if good_sequency ==0:
     return 0
+
+def checkId(line: string):
+       id = line.split()
+       print(id[0])
+       return id[0]

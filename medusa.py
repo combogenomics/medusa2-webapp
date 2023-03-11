@@ -9,7 +9,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, escape, Response, send_from_directory
 from werkzeug.utils import secure_filename
 
-from utils import check_empty_sequence, check_first_line, check_sequence, generate_hash
+from utils import check_sequence, checkId, generate_hash
 from utils import generate_time_hash
 
 from store import add_job
@@ -26,6 +26,8 @@ app = Flask(__name__)
 app.config.from_object(settings)
 
 # Production settings that override the testing ones
+
+list_id=[]
 
 try:
     import production
@@ -116,7 +118,17 @@ def run():
                             return redirect(url_for('index'))
                     if line[0]== ">":
                         found_new_line =1
-                        #getid(line)
+                        id = checkId(line)
+                        try:
+                            if(list_id.index(id)>=0):
+                                flash(u'Something went wrong with your draft genome: duplicate id found',
+                                        'danger')
+                                return redirect(url_for('index'))
+                            else:
+                                list_id.append(id)
+                        except Exception as e:
+                            list_id.append(id)
+
                     else:
                         found_new_line =0
                         sequence = check_sequence(line)
