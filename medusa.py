@@ -107,8 +107,9 @@ def run():
             draftFile= os.path.join(wdir, filename)
             draft.save(draftFile)
             dname = filename
-            sequence=0;
+            sequence=0
             found_new_line = 0
+            list_id.clear()
             with open(draftFile,"r") as file:
                 for line in file.readlines():
                     if  found_new_line ==1:
@@ -148,9 +149,38 @@ def run():
         try:
             for genome in request.files.getlist('genomes'):
                 filename = secure_filename(genome.filename)
-               # print(genome.read())
-                #QUI METTI CONTROLLO FILE GENOMA
                 genome.save(os.path.join(wdir, filename))
+                sequence=0
+                found_new_line = 0
+                list_id.clear()
+                with open(genome,"r") as file:
+                    for line in file.readlines():
+                        if  found_new_line ==1:
+                            if line[0]== ">" or line[0]== "\n":
+                                flash(u'Something went wrong with your target genome: empty sequence found',
+                                        'danger')
+                                return redirect(url_for('index'))
+                        if line[0]== ">":
+                            found_new_line =1
+                            id = checkId(line)
+                            try:
+                                if(list_id.index(id)>=0):
+                                    flash(u'Something went wrong with your target genome: duplicate id found',
+                                            'danger')
+                                    return redirect(url_for('index'))
+                                else:
+                                    list_id.append(id)
+                            except Exception as e:
+                                list_id.append(id)
+
+                        else:
+                            found_new_line =0
+                            sequence = check_sequence(line)
+                            if sequence == 1:
+                                    flash(u'Something went wrong with your target genome',
+                                            'danger')
+                                    return redirect(url_for('index'))
+                
                 genomes.add(filename)
                
         except:
