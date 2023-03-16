@@ -61,6 +61,6 @@ def check_sequence(line: string):  # allowed characters: ATCGN
     return 0
 
 def checkId(line: string):
-       id = line.split()
-       print(id[0])
+       id = line.split("\n")
+       #print(id[0])
        return id[0]

@@ -113,7 +113,7 @@ def run():
             with open(draftFile,"r") as file:
                 for line in file.readlines():
                     if  found_new_line ==1:
-                        if line[0]== ">" or line[0]== "\n":
+                        if line[0]== ">":
                             flash(u'Something went wrong with your draft genome: empty sequence found',
                                     'danger')
                             return redirect(url_for('index'))
@@ -143,20 +143,20 @@ def run():
                   'danger')
             return redirect(url_for('index'))
         
-       
         # Save the genomes files
         genomes = set()
         try:
             for genome in request.files.getlist('genomes'):
                 filename = secure_filename(genome.filename)
-                genome.save(os.path.join(wdir, filename))
+                genomeFile = os.path.join(wdir, filename)
+                genome.save(genomeFile)
                 sequence=0
                 found_new_line = 0
                 list_id.clear()
-                with open(genome,"r") as file:
+                with open(genomeFile,"r") as file:
                     for line in file.readlines():
                         if  found_new_line ==1:
-                            if line[0]== ">" or line[0]== "\n":
+                            if line[0]== ">" :
                                 flash(u'Something went wrong with your target genome: empty sequence found',
                                         'danger')
                                 return redirect(url_for('index'))
@@ -177,13 +177,15 @@ def run():
                             found_new_line =0
                             sequence = check_sequence(line)
                             if sequence == 1:
+                                    print(line)
                                     flash(u'Something went wrong with your target genome',
                                             'danger')
                                     return redirect(url_for('index'))
                 
                 genomes.add(filename)
                
-        except:
+        except Exception as e:
+            print(e)
             flash(u'Something went wrong with your target genomes',
                   'danger')
             return redirect(url_for('index'))
