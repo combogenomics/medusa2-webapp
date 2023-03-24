@@ -5,6 +5,7 @@ import sys
 import json
 import subprocess
 import time
+import gzip
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, escape, Response, send_from_directory
 from werkzeug.utils import secure_filename
@@ -110,37 +111,74 @@ def run():
             sequence=0
             found_new_line = 0
             list_id.clear()
-            with open(draftFile,"r") as file:
-                for line in file.readlines():
-                    if  found_new_line ==1:
-                        if line[0]== ">":
-                            flash(u'Something went wrong with your draft genome: empty sequence found',
-                                    'danger')
-                            return redirect(url_for('index'))
-                    if line[0]== ">":
-                        found_new_line =1
-                        id = checkId(line)
-                        try:
-                            if(list_id.index(id)>=0):
-                                flash(u'Something went wrong with your draft genome: duplicate id found',
-                                        'danger')
-                                return redirect(url_for('index'))
-                            else:
-                                list_id.append(id)
-                        except Exception as e:
-                            list_id.append(id)
+            if(filename.find('.gz')>-1):
+                with gzip.open(draftFile,"rt") as file:
+                    for line in file.readlines():
+                            print(line)
+                            if  found_new_line ==1:
+                                if line[0]== ">":
+                                    flash(u'Something went wrong with your draft genome: empty sequence found',
+                                            'danger')
+                                    return redirect(url_for('index'))
+                            if line[0]== ">":
+                                found_new_line =1
+                                id = checkId(line)
+                                try:
+                                    if(list_id.index(id)>=0):
+                                        flash(u'Something went wrong with your draft genome: duplicate id found',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                                    else:
+                                        list_id.append(id)
+                                except Exception as e:
+                                    list_id.append(id)
 
-                    else:
-                        found_new_line =0
-                        sequence = check_sequence(line)
-                        if sequence == 1:
-                                flash(u'Something went wrong with your draft genome',
-                                        'danger')
-                                return redirect(url_for('index'))
-                        
+                            else:
+                                found_new_line =0
+                                sequence = check_sequence(line)
+                                if sequence == 1:
+                                        flash(u'Something went wrong with your draft genome',
+                                                'danger')
+                                        return redirect(url_for('index'))
+            else:
+                try:
+                    with open(draftFile,"r") as file:
+                        for line in file.readlines():
+                            print(line)
+                            if  found_new_line ==1:
+                                if line[0]== ">":
+                                    flash(u'Something went wrong with your draft genome: empty sequence found',
+                                            'danger')
+                                    return redirect(url_for('index'))
+                            if line[0]== ">":
+                                found_new_line =1
+                                id = checkId(line)
+                                try:
+                                    if(list_id.index(id)>=0):
+                                        flash(u'Something went wrong with your draft genome: duplicate id found',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                                    else:
+                                        list_id.append(id)
+                                except Exception as e:
+                                    list_id.append(id)
+
+                            else:
+                                found_new_line =0
+                                sequence = check_sequence(line)
+                                if sequence == 1:
+                                        flash(u'Something went wrong with your draft genome',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                except Exception as e:
+                    print(e)
+                    flash(u'unrecognized compression type, please use GZIP for deflating your files',
+                        'danger')
+                    return redirect(url_for('index'))
+                            
         else:
             flash(u'Something went wrong with your draft genome',
-                  'danger')
+                  'danger ')
             return redirect(url_for('index'))
         
         # Save the genomes files
@@ -153,37 +191,74 @@ def run():
                 sequence=0
                 found_new_line = 0
                 list_id.clear()
-                with open(genomeFile,"r") as file:
-                    for line in file.readlines():
-                        if  found_new_line ==1:
-                            if line[0]== ">" :
-                                flash(u'Something went wrong with your target genome: empty sequence found',
-                                        'danger')
-                                return redirect(url_for('index'))
-                        if line[0]== ">":
-                            found_new_line =1
-                            id = checkId(line)
-                            try:
-                                if(list_id.index(id)>=0):
-                                    flash(u'Something went wrong with your target genome: duplicate id found',
-                                            'danger')
-                                    return redirect(url_for('index'))
-                                else:
-                                    list_id.append(id)
-                            except Exception as e:
-                                list_id.append(id)
+                if(filename.find('.gz')>-1):
+                    with gzip.open(draftFile,"rt") as file:
+                        for line in file.readlines():
+                                print(line)
+                                if  found_new_line ==1:
+                                    if line[0]== ">":
+                                        flash(u'Something went wrong with your target genome: empty sequence found',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                                if line[0]== ">":
+                                    found_new_line =1
+                                    id = checkId(line)
+                                    try:
+                                        if(list_id.index(id)>=0):
+                                            flash(u'Something went wrong with your target genome: duplicate id found',
+                                                    'danger')
+                                            return redirect(url_for('index'))
+                                        else:
+                                            list_id.append(id)
+                                    except Exception as e:
+                                        list_id.append(id)
 
-                        else:
-                            found_new_line =0
-                            sequence = check_sequence(line)
-                            if sequence == 1:
-                                    print(line)
-                                    flash(u'Something went wrong with your target genome',
-                                            'danger')
-                                    return redirect(url_for('index'))
+                                else:
+                                    found_new_line =0
+                                    sequence = check_sequence(line)
+                                    if sequence == 1:
+                                            flash(u'Something went wrong with your target genome: one or more sequences contain non DNA characters',
+                                                    'danger')
+                                            return redirect(url_for('index'))
+                    genomes.add(filename)
+                else:
+                    try:
+                        with open(genomeFile,"r") as file:
+                            for line in file.readlines():
+                                if  found_new_line ==1:
+                                    if line[0]== ">" :
+                                        flash(u'Something went wrong with your target genome: empty sequence found',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                                if line[0]== ">":
+                                    found_new_line =1
+                                    id = checkId(line)
+                                    try:
+                                        if(list_id.index(id)>=0):
+                                            flash(u'Something went wrong with your target genome: duplicate id found',
+                                                    'danger')
+                                            return redirect(url_for('index'))
+                                        else:
+                                            list_id.append(id)
+                                    except Exception as e:
+                                        list_id.append(id)
+
+                                else:
+                                    found_new_line =0
+                                    sequence = check_sequence(line)
+                                    if sequence == 1:
+                                            print(line)
+                                            flash(u'Something went wrong with your target genome: one or more sequences contain non DNA characters',
+                                                    'danger')
+                                            return redirect(url_for('index'))
+                        
+                        genomes.add(filename)
+                    except Exception as e:
+                        print(e)
+                        flash(u'unrecognized compression type, please use GZIP for deflating your files',
+                            'danger')
+                        return redirect(url_for('index'))
                 
-                genomes.add(filename)
-               
         except Exception as e:
             print(e)
             flash(u'Something went wrong with your target genomes',
