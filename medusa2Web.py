@@ -20,7 +20,7 @@ process=1
 output_folder=""
 
 
-def runScript(target_filename,output_folder,run,skipmap,process,minimap2):
+def runScript(target_filename,output_folder,run,skipmap,process,minimap2,random,weight):
 #print(target_filename)
     global finished
     
@@ -34,7 +34,7 @@ def runScript(target_filename,output_folder,run,skipmap,process,minimap2):
     else:
         minimap2 ='False'    	
         
-    result = subprocess.run(['./launcher.sh', target_filename, output_folder, run, skipmap, minimap2, process ], stdout=subprocess.PIPE)
+    result = subprocess.run(['./launcher.sh', target_filename, output_folder, run, skipmap, minimap2, process ,random,weight,], stdout=subprocess.PIPE)
     t = result.stdout.decode('utf-8');
     finished= True
     #return render_template('index.html')
@@ -75,6 +75,8 @@ def upload_file():
     global output_folder
     global minimap2
     global process 
+    global random
+    global weight
     #blank all variables
     finished = False
     target_filename=""
@@ -94,7 +96,9 @@ def upload_file():
     skipmap = request.form.get('skipmap')
     minimap2 = request.form.get('minimap2')
     process = request.form['process']
-   
+    random =  request.form.get('graph_path_rd')
+    weight = request.form.get('graph_path_wh')
+    
     list_id=[]
         
     if output_folder!= '':
@@ -103,18 +107,19 @@ def upload_file():
         os.mkdir("./results/"+output_folder+"/references/")
     
     if target_file.filename != '':
-        target_file.save("./results/"+output_folder+"/target/"+target_file.filename)
+        target = "./results/"+output_folder+"/target/"+target_file.filename
+       # target_file.save("./results/"+output_folder+"/target/"+target_file.filename)
+        target_file.save(target)
         target_filename = target_file.filename
         sequence=0
         found_new_line = 0
         list_id.clear()
         if(target_filename.find('.gz')>-1):
-            with gzip.open(target_filename,"rt") as file:
+            with gzip.open(target,"rt") as file:
                 for line in file.readlines():
-                        print(line)
                         if  found_new_line ==1:
                             if line[0]== ">":
-                                flash(u'Something went wrong with your draft genome: empty sequence found',
+                                flash(u'Something went wrong with your target genome: empty sequence found',
                                         'danger')
                                 return redirect(url_for('index'))
                         if line[0]== ">":
@@ -122,7 +127,7 @@ def upload_file():
                             id = checkId(line)
                             try:
                                 if(list_id.index(id)>=0):
-                                    flash(u'Something went wrong with your draft genome: duplicate id found',
+                                    flash(u'Something went wrong with your target genome: duplicate id found',
                                             'danger')
                                     return redirect(url_for('index'))
                                 else:
@@ -134,17 +139,16 @@ def upload_file():
                             found_new_line =0
                             sequence = check_sequence(line)
                             if sequence == 1:
-                                    flash(u'Something went wrong with your draft genome',
+                                    flash(u'Something went wrong with your target genome::one or more sequences contain non DNA characters',
                                             'danger')
                                     return redirect(url_for('index'))
         else:
             try:
-                with open(target_filename,"r") as file:
+                with open(target,"r") as file:
                     for line in file.readlines():
-                        print(line)
                         if  found_new_line ==1:
                             if line[0]== ">":
-                                flash(u'Something went wrong with your draft genome: empty sequence found',
+                                flash(u'Something went wrong with your target genome: empty sequence found',
                                         'danger')
                                 return redirect(url_for('index'))
                         if line[0]== ">":
@@ -152,7 +156,7 @@ def upload_file():
                             id = checkId(line)
                             try:
                                 if(list_id.index(id)>=0):
-                                    flash(u'Something went wrong with your draft genome: duplicate id found',
+                                    flash(u'Something went wrong with your target genome: duplicate id found',
                                             'danger')
                                     return redirect(url_for('index'))
                                 else:
@@ -164,7 +168,7 @@ def upload_file():
                             found_new_line =0
                             sequence = check_sequence(line)
                             if sequence == 1:
-                                    flash(u'Something went wrong with your draft genome',
+                                    flash(u'Something went wrong with your target genome:one or more sequences contain non DNA characters',
                                             'danger')
                                     return redirect(url_for('index'))
             except Exception as e:
@@ -174,14 +178,81 @@ def upload_file():
                 return redirect(url_for('index'))
                         
     else:
-        flash(u'Something went wrong with your draft genome',
+        flash(u'Something went wrong with your target genome',
                 'danger ')
         return redirect(url_for('index'))
         
     i=1
     for currentRef in references_files:
         if currentRef.filename != '':
-            currentRef.save("./results/"+output_folder+"/references/"+currentRef.filename)
+            #currentRef.save("./results/"+output_folder+"/references/"+currentRef.filename)
+            current_reference =  "./results/"+output_folder+"/references/"+currentRef.filename
+            currentRef.save(current_reference)
+            sequence=0
+            found_new_line = 0
+            list_id.clear()
+            if(currentRef.filename.find('.gz')>-1):
+                with gzip.open(current_reference,"rt") as file:
+                    for line in file.readlines():
+                            if  found_new_line ==1:
+                                if line[0]== ">":
+                                    flash(u'Something went wrong with your reference genome: empty sequence found',
+                                            'danger')
+                                    return redirect(url_for('index'))
+                            if line[0]== ">":
+                                found_new_line =1
+                                id = checkId(line)
+                                try:
+                                    if(list_id.index(id)>=0):
+                                        flash(u'Something went wrong with your reference genome: duplicate id found',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                                    else:
+                                        list_id.append(id)
+                                except Exception as e:
+                                    list_id.append(id)
+
+                            else:
+                                found_new_line =0
+                                sequence = check_sequence(line)
+                                if sequence == 1:
+                                        flash(u'Something went wrong with your reference genome: one or more sequences contain non DNA characters',
+                                                'danger')
+                                        return redirect(url_for('index'))
+            else:
+                try:
+                    with open(current_reference,"r") as file:
+                        for line in file.readlines():
+                            if  found_new_line ==1:
+                                if line[0]== ">" :
+                                    flash(u'Something went wrong with your reference genome: empty sequence found',
+                                            'danger')
+                                    return redirect(url_for('index'))
+                            if line[0]== ">":
+                                found_new_line =1
+                                id = checkId(line)
+                                try:
+                                    if(list_id.index(id)>=0):
+                                        flash(u'Something went wrong with your reference genome: duplicate id found',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                                    else:
+                                        list_id.append(id)
+                                except Exception as e:
+                                    list_id.append(id)
+
+                            else:
+                                found_new_line =0
+                                sequence = check_sequence(line)
+                                if sequence == 1:
+                                        flash(u'Something went wrong with your reference genome: one or more sequences contain non DNA characters',
+                                                'danger')
+                                        return redirect(url_for('index'))
+                    
+                except Exception as e:
+                    flash(u'unrecognized compression type, please use GZIP for deflating your files',
+                        'danger')
+                    return redirect(url_for('index'))
         if i==1:
             references_filename= references_filename + currentRef.filename
         else:
@@ -190,7 +261,7 @@ def upload_file():
 
     a = Thread(target=runScript, args=(target_filename,output_folder,run,skipmap,process,minimap2))
     a.start()
-    
+    #aggiungere random e weight anche qui
     return render_template('index_loading.html', target_filename=target_filename, references_filename=references_filename, run=run, skipmap=skipmap, output_folder=output_folder, process=process, minimap2=minimap2)       
 
   
